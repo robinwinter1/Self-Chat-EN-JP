@@ -16,7 +16,7 @@ const MessageSchema = new Schema<IMessage>({
   timestamp: {
     type: Date,
     default: Date.now,
-    expires: 600, // 10 minutes
+    expires: 3600, // 1 hr
   },
 });
 
