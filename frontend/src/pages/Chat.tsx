@@ -27,14 +27,29 @@ const Chat = () => {
   const fetchMessages = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/messages");
+
+      const container = chatContainerRef.current;
+      if (!container) {
+        setMessages(res.data);
+        return;
+      }
+
+      // Check if user is near the bottom before updating
+      const isAtBottom =
+        container.scrollHeight - container.scrollTop - container.clientHeight <
+        50;
+
       setMessages(res.data);
 
-      setTimeout(() => {
-        chatContainerRef.current?.scrollTo({
-          top: chatContainerRef.current.scrollHeight,
-          behavior: "smooth",
-        });
-      }, 50);
+      // Only scroll to bottom if user is at bottom
+      if (isAtBottom) {
+        setTimeout(() => {
+          container.scrollTo({
+            top: container.scrollHeight,
+            behavior: "smooth",
+          });
+        }, 50);
+      }
     } catch (err) {
       console.error(err);
       setMessages([]);
