@@ -9,7 +9,7 @@ type Message = {
   timestamp: string;
 };
 
-const AUTO_DELETE_SECONDS = 1800; // 30 min
+const AUTO_DELETE_SECONDS = 180; // 3 minutes
 
 const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -22,19 +22,19 @@ const Chat = () => {
   const [editJapanese, setEditJapanese] = useState("");
 
   const [error, setError] = useState("");
-
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const fetchMessages = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/messages");
       setMessages(res.data);
+
       setTimeout(() => {
         chatContainerRef.current?.scrollTo({
           top: chatContainerRef.current.scrollHeight,
           behavior: "smooth",
         });
-      }, 100);
+      }, 50);
     } catch (err) {
       console.error(err);
       setMessages([]);
@@ -93,12 +93,8 @@ const Chat = () => {
 
   useEffect(() => {
     fetchMessages();
-    const interval = setInterval(fetchMessages, 3000);
-    const countdown = setInterval(() => setMessages((prev) => [...prev]), 1000);
-    return () => {
-      clearInterval(interval);
-      clearInterval(countdown);
-    };
+    const interval = setInterval(fetchMessages, 1000); // update UI every second
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -135,7 +131,7 @@ const Chat = () => {
         ))}
       </div>
 
-      {/* Chat */}
+      {/* Messages */}
       <div
         ref={chatContainerRef}
         style={{
@@ -158,6 +154,7 @@ const Chat = () => {
                 marginBottom: 10,
               }}
             >
+              {/* Editing / Display */}
               {editingId === m._id ? (
                 <div style={{ width: "70%" }}>
                   <input

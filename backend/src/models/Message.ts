@@ -1,4 +1,5 @@
 // backend/src/models/Message.ts
+
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IMessage extends Document {
@@ -15,7 +16,7 @@ const MessageSchema = new Schema<IMessage>({
   timestamp: {
     type: Date,
     default: Date.now,
-    expires: 1800, // auto-delete after 1 hour, change to 1800 for 30 min
+    expires: 180, // 3 minutes
   },
 });
 

@@ -2,8 +2,8 @@
 
 import express from "express";
 import dotenv from "dotenv";
-import { connectDB } from "./config/db";
 import cors from "cors";
+import { connectDB } from "./config/db";
 import messageRoutes from "./routes/messages";
 
 dotenv.config();
@@ -18,9 +18,9 @@ app.use(cors());
 // Routes
 app.use("/api/messages", messageRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Start server AFTER connecting to DB
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 });
-
-// Connect to MongoDB
-connectDB();

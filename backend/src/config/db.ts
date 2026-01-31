@@ -1,12 +1,43 @@
 // backend/src/config/db.ts
 
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const connectDB = async () => {
-  const MONGO_URI = process.env.MONGO_URI || "error";
   try {
-    await mongoose.connect(MONGO_URI);
-    console.log("MongoDB connected");
+    const conn = await mongoose.connect(process.env.MONGO_URI!);
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+
+    const MessageCollection = mongoose.connection.collection("messages");
+
+    // Drop old TTL index if its expireAfterSeconds != 180
+    const indexes = await MessageCollection.indexes();
+    const existingTTL = indexes.find(
+      (idx) => idx.name === "timestamp_1" && idx.expireAfterSeconds !== 180,
+    );
+
+    if (existingTTL) {
+      console.log("Dropping old TTL index...");
+      await MessageCollection.dropIndex("timestamp_1");
+      console.log("Old TTL index dropped");
+    }
+
+    // Create TTL index if missing
+    const ttlExists = indexes.some(
+      (idx) => idx.name === "timestamp_1" && idx.expireAfterSeconds === 180,
+    );
+    if (!ttlExists) {
+      console.log("Creating new TTL index (3 min)...");
+      await MessageCollection.createIndex(
+        { timestamp: 1 },
+        { expireAfterSeconds: 180 },
+      );
+      console.log(
+        "TTL index created: messages will auto-delete after 3 minutes",
+      );
+    }
   } catch (error) {
     console.error("MongoDB connection error:", error);
     process.exit(1);
