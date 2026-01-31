@@ -12,10 +12,10 @@ export const connectDB = async () => {
 
     const MessageCollection = mongoose.connection.collection("messages");
 
-    // Drop old TTL index if its expireAfterSeconds != 180
+    // Drop old TTL index 
     const indexes = await MessageCollection.indexes();
     const existingTTL = indexes.find(
-      (idx) => idx.name === "timestamp_1" && idx.expireAfterSeconds !== 180,
+      (idx) => idx.name === "timestamp_1" && idx.expireAfterSeconds !== 600,
     );
 
     if (existingTTL) {
@@ -26,16 +26,16 @@ export const connectDB = async () => {
 
     // Create TTL index if missing
     const ttlExists = indexes.some(
-      (idx) => idx.name === "timestamp_1" && idx.expireAfterSeconds === 180,
+      (idx) => idx.name === "timestamp_1" && idx.expireAfterSeconds === 600,
     );
     if (!ttlExists) {
       console.log("Creating new TTL index (3 min)...");
       await MessageCollection.createIndex(
         { timestamp: 1 },
-        { expireAfterSeconds: 180 },
+        { expireAfterSeconds: 600 },
       );
       console.log(
-        "TTL index created: messages will auto-delete after 3 minutes",
+        "TTL index created: messages will auto-delete after 10 minutes",
       );
     }
   } catch (error) {

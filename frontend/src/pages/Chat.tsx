@@ -9,7 +9,7 @@ type Message = {
   timestamp: string;
 };
 
-const AUTO_DELETE_SECONDS = 180; // 3 minutes
+const AUTO_DELETE_SECONDS = 600; // 10 minutes
 
 const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
